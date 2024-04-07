@@ -3,7 +3,7 @@
 
 from fabric.api import *
 import os
-from fabric.contrib import files
+from fabric.contrib.files import exists
 
 env.user = 'ubuntu'
 env.hosts = ['54.197.110.17', '54.237.32.90']
