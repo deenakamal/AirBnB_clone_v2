@@ -2,7 +2,7 @@
 """Deploy archive!"""
 
 from fabric.contrib import files
-from fabric.api import env, put, run
+from fabric.api import *
 import os
 
 env.user = "ubuntu"
@@ -27,7 +27,8 @@ def do_deploy(archive_path):
         run('sudo mv {}/web_static/* {}/'.format(dest, dest))
         run('sudo rm -rf {}/web_static'.format(dest))
         run('sudo rm -rf /data/web_static/current')
-        run('sudo ln -s {} /data/web_static/current'.format(dest))
+        run('sudo ln -sf {} /data/web_static/current'.format(dest))
+        run('sudo chown -R ubuntu:ubuntu /data/')
         return True
     except:
         return False
