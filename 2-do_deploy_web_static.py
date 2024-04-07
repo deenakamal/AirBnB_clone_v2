@@ -5,32 +5,34 @@ from fabric.api import *
 import os
 from fabric.contrib import files
 
-env.user = "ubuntu"
-env.hosts = ["54.197.110.17", "54.237.32.90"]
+env.user = 'ubuntu'
+env.hosts = ['54.197.110.17', '54.237.32.90']
+env.key_filename = '~/.ssh/school'
 
 
 def do_deploy(archive_path):
-    """Function that used to deploy to web servers"""
-    if not os.path.exists(archive_path):
+    """
+    Distributes an archive to your web servers
+    """
+    if not exists(archive_path):
         return False
 
-    base_path = '/data/web_static/releases/'
-    tmp = archive_path.split('.')[0]
-    file_name = tmp.split('/')[1]
-    deployment_dir = base_path + file_name
-
     try:
-        put(archive_path, '/tmp')
-        run('sudo mkdir -p {}'.format(deployment_dir))
-        run('sudo tar -xzf /tmp/{}.tgz -C {}'.format(file_name,
-                                                     deployment_dir))
-        run('sudo rm -f /tmp/{}.tgz'.format(file_name))
-        run('sudo mv {}/web_static/* {}/'.format(deployment_dir,
-                                                 deployment_dir))
-        run('sudo rm -rf {}/web_static'.format(deployment_dir))
-        run('sudo rm -rf /data/web_static/current')
-        run('sudo ln -s {} /data/web_static/current'.format(deployment_dir))
+        filename = archive_path.split('/')[-1]
+        no_ext = filename.split('.')[0]
+        release_path = f'/data/web_static/releases/{no_ext}/'
+        tmp_path = '/tmp/' + filename
+
+        put(archive_path, tmp_path)
+        run(f'mkdir -p {release_path}')
+        run(f'tar -xzf {tmp_path} -C {release_path}')
+        run(f'rm {tmp_path}')
+        run(f'mv {release_path}web_static/* {release_path}')
+        run(f'rm -rf {release_path}web_static')
+        run(f'rm -rf /data/web_static/current')
+        run(f'ln -s {release_path} /data/web_static/current')
+
+        print("New version deployed!")
         return True
-    except Exception as e:
-        print(e)
+    except:
         return False
