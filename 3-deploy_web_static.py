@@ -23,24 +23,22 @@ def do_pack():
 
 
 def do_deploy(archive_path):
-    """Function for deploy"""
+    """do_deploy"""
     if not os.path.exists(archive_path):
         return False
 
-    data_path = '/data/web_static/releases/'
-    tmp = archive_path.split('.')[0]
-    name = tmp.split('/')[1]
-    dest = data_path + name
-
+    _path = '/data/web_static/releases/'
+    name = archive_path.split('/')[-1].split('.')[0]
+    last = _path + name
     try:
         put(archive_path, '/tmp')
         run('sudo mkdir -p {}'.format(dest))
-        run('sudo tar -xzf /tmp/{}.tgz -C {}'.format(name, dest))
+        run('sudo tar -xzf /tmp/{}.tgz -C {}'.format(name, last))
         run('sudo rm -f /tmp/{}.tgz'.format(name))
-        run('sudo mv {}/web_static/* {}/'.format(dest, dest))
-        run('sudo rm -rf {}/web_static'.format(dest))
+        run('sudo mv {}/web_static/* {}/'.format(last, last))
+        run('sudo rm -rf {}/web_static'.format(last))
         run('sudo rm -rf /data/web_static/current')
-        run('sudo ln -sf {} /data/web_static/current'.format(dest))
+        run('sudo ln -sf {} /data/web_static/current'.format(last))
         run('sudo chown -R ubuntu:ubuntu /data/')
         return True
     except:
@@ -48,10 +46,11 @@ def do_deploy(archive_path):
 
 
 def deploy():
-    """creates and distributes an archive
     """
-    archive_path = do_pack()
-    if archive_path:
-        return do_deploy(archive_path)
+    deploy
+    """
+    _path = do_pack()
+    if _path:
+        return do_deploy(_path)
     else:
         return False
