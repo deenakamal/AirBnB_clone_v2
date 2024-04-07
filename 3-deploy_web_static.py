@@ -1,12 +1,25 @@
 #!/usr/bin/python3
-"""Deploy archive!"""
-
+"""Generates a .tgz archive."""
+from fabric.api import local, env, put, run
+from datetime import datetime
 from fabric.contrib import files
-from fabric.api import env, put, run
 import os
 
 env.user = "ubuntu"
 env.hosts = ["54.197.110.17", "54.237.32.90"]
+
+
+def do_pack():
+    """generates archive"""
+    file_date = datetime.now().strftime('%Y%m%d%H%M%S')
+    file_name = f'web_static_{file_date}.tgz'
+    try:
+        local('mkdir -p versions')
+        local(f'tar -czvf versions/{file_name} web_static')
+        return f'versions/{file_name}'
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 
 def do_deploy(archive_path):
@@ -30,4 +43,14 @@ def do_deploy(archive_path):
         run('sudo ln -s {} /data/web_static/current'.format(dest))
         return True
     except:
+        return False
+
+
+def deploy():
+    """creates and distributes an archive
+    """
+    archive_path = do_pack()
+    if archive_path:
+        return do_deploy(archive_path)
+    else:
         return False
