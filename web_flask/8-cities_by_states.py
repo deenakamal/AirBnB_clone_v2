@@ -1,25 +1,29 @@
 #!/usr/bin/python3
-"""flask web app"""
-from flask import Flask, render_template
-from models import storage
-from models.state import State
-from models.city import City
+""" Flask web application"""
 
+from models import storage
+from flask import Flask, render_template
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 
 
-@app.route('/cities_by_states', strict_slashes=False)
-def cities_by_states():
-    """display the HTML page"""
+@app.route('/cities_by_states')
+def states():
+    """
+    all state data
+    """
 
-    states = storage.all(State)
-    return render_template("8-cities_by_states.html", states=states)
+    states = storage.all("State")
+    return render_template("8-cities_by_states.html",
+                           states=states)
 
 
 @app.teardown_appcontext
 def terminate(exc):
-    """close the storage after request"""
+    """
+    Close session
+    """
     storage.close()
 
 
