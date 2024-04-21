@@ -1,30 +1,40 @@
 #!/usr/bin/python3
-""" flask module """
-from flask import Flask
-from flask import render_template
+"""start a Flask web app"""
+from flask import Flask, render_template, redirect, url_for
+
 from models import storage
+from models.state import State
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 
 
-@app.route('/states', strict_slashes=False)
-@app.route('/states/<id>', strict_slashes=False)
-def states(id=None):
-    """ list all states"""
-    not_found = False
-    if id is not None:
-        states = storage.all(State, id)
-        id_ava = True
-
-        if len(states) == 0:
-            not_found = True
-    else:
-        states = storage.all(State)
-        id_ava = False
-
-    return render_template('9-states.html', states=states,
-                           id_ava=id_ava, not_found=not_found)
+@app.route('/states')
+def states():
+    """Get all the state's data"""
+    data = storage.all(State)
+    return render_template("9-states.html",
+                           states=data)
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+@app.route('/states/<id>')
+def states_by_id(id):
+    obj = None
+    notfound = True
+    for state in storage.all(State).values():
+        if state.id == id:
+            obj = state
+            notfound = False
+            break
+    return render_template("9-states.html", id=id,
+                           state=obj, notfound=notfound)
+
+
+@app.teardown_appcontext
+def terminate(excep):
+    """Close SQLAlchemy session after request"""
+    storage.close()
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
