@@ -2,7 +2,7 @@
 """
 Flask web application
 """
-from flask import Flask
+from flask import Flask, render_template
 from markupsafe import escape
 
 
@@ -40,6 +40,7 @@ def python_text(text="is cool"):
 def number(n=None):
     """if n is integer display it"""
     return f"{n} is a number"
+
 
 @app.route("/number_template/<int:n>", strict_slashes=False)
 def number_template(n=None):
